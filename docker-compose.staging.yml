@@ -1,0 +1,20 @@
+# Docker Compose file for staging environment
+# Change network name to your actual docker portainer NETWORK name so you can config pointing domain with NGINX Proxy Manager
+version: "3"
+services:
+  xt-bo-staging:
+    build: .
+    container_name: xt-bo-staging
+    ports:
+      - "3000:3000"
+    networks:
+      - docker-stack_default
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env.production
+
+networks:
+  docker-stack_default:
+    external: true

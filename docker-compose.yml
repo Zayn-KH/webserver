@@ -1,0 +1,18 @@
+# Docker Compose file for a web application with docker stack network configuration
+# Change network name to your actual docker portainer NETWORK name so you can config pointing domain with NGINX Proxy Manager
+
+version: "3"
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    networks:
+      - docker-stack_default
+    restart: unless-stopped
+
+networks:
+  docker-stack_default:
+    external: true
+
+

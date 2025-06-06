@@ -1,36 +1,112 @@
+# ================= Jenkinsfile for Deploying Docker Container with .env.production or .env.development =================
+# This Jenkinsfile defines a pipeline to build, stop, remove, and run a Docker container for the xt-bo-uat application.
+
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = 'xt-bo-uat'
+        TAG = 'uat'
+        PORT = '8800'
+        INTERNAL_PORT = '3000'
+        NETWORK = 'docker-stack_default'
+    }
+
     stages {
-        stage('Build') {
+
+        stage('Build Docker Image') {
             steps {
-                echo 'Building...'
-                // Add your build commands here
+                script {
+                    sh "docker build -t ${IMAGE_NAME}:${TAG} ."
+                }
             }
         }
-        stage('Test') {
+
+        stage('Stop & Remove Old Container') {
             steps {
-                echo 'Testing...'
-                // Add your test commands here
+                script {
+                    sh "docker stop ${IMAGE_NAME} || true"
+                    sh "docker rm ${IMAGE_NAME} || true"
+                }
             }
         }
-        stage('Deploy') {
+
+        stage('Run New Container') {
             steps {
-                echo 'Deploying...'
-                // Add your deployment commands here
+                script {
+                    sh """
+                        docker run -d \
+                        --name ${IMAGE_NAME} \
+                        --network ${NETWORK} \
+                        -p ${PORT}:${INTERNAL_PORT} \
+                        -e TZ=Asia/Phnom_Penh \
+                        -v /etc/timezone:/etc/timezone:ro \
+                        -v /etc/localtime:/etc/localtime:ro \
+                        ${IMAGE_NAME}:${TAG}
+                    """
+                }
             }
         }
     }
+}
 
-    post {
-        always {
-            echo 'This will always run after the pipeline completes.'
+
+
+#======================== Jenkinsfile for Deploying Docker Container with Environment Variables ========================
+
+
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'xt-bo-staging'
+        TAG = 'staging'
+        PORT = '9900'
+        INTERNAL_PORT = '3000'
+        NETWORK = 'docker-stack_default'
+    }
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh """
+                        docker build \
+                          --build-arg NEXT_PUBLIC_SITE_NAME=${NEXT_PUBLIC_SITE_NAME} \
+                          --build-arg NEXT_PUBLIC_BE_API_URL=${NEXT_PUBLIC_BE_API_URL} \
+                          --build-arg NEXTAUTH_SECRET=${NEXTAUTH_SECRET} \
+                          --build-arg NEXTAUTH_URL=${NEXTAUTH_URL} \
+                          -t ${IMAGE_NAME}:${TAG} .
+                    """
+                }
+            }
         }
-        success {
-            echo 'This will run only if the pipeline succeeds.'
+
+        stage('Stop & Remove Old Container') {
+            steps {
+                script {
+                    sh "docker stop ${IMAGE_NAME} || true"
+                    sh "docker rm ${IMAGE_NAME} || true"
+                }
+            }
         }
-        failure {
-            echo 'This will run only if the pipeline fails.'
+
+        stage('Run New Container') {
+            steps {
+                script {
+                    sh """
+                        docker run -d \
+                          --name ${IMAGE_NAME} \
+                          --network ${NETWORK} \
+                          -p ${PORT}:${INTERNAL_PORT} \
+                          -e NEXT_PUBLIC_SITE_NAME=${NEXT_PUBLIC_SITE_NAME} \
+                          -e NEXT_PUBLIC_BE_API_URL=${NEXT_PUBLIC_BE_API_URL} \
+                          -e NEXTAUTH_SECRET=${NEXTAUTH_SECRET} \
+                          -e NEXTAUTH_URL=${NEXTAUTH_URL} \
+                          ${IMAGE_NAME}:${TAG}
+                    """
+                }
+            }
         }
     }
 }
