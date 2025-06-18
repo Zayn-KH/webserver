@@ -18,3 +18,5 @@ bash
 Copy
 Edit
 ```docker-compose --version```
+
+https://chatgpt.com/s/t_6852a75511508191b0e2765766786358
