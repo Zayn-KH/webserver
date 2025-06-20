@@ -1,6 +1,8 @@
 # How to do after push .env, .env.production, .env.dev that contains secret by mistake?
 # Make sure nobody forgot to push the code before doing this process
---- Please be serious this process is dangerous but we have way to solve it ---
+---
+Please be serious this process is dangerous but we have way to solve it 
+---
 # STAGE 1
 1. Let's try to remove by added .env to .gitignore
 ```
