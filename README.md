@@ -159,13 +159,16 @@ run command
 ```
 docker run -d \
   --name jenkins \
+  --network docker-stack_default \
   -p 8080:8080 \
   -p 50000:50000 \
   -v jenkins_home:/var/jenkins_home \
+  -v /opt/ci:/opt/ci \
   -e TZ=Asia/Phnom_Penh \
   -v /etc/timezone:/etc/timezone:ro \
   -v /etc/localtime:/etc/localtime:ro \
   jenkins/jenkins:lts
+
 
 ```
 
