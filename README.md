@@ -165,12 +165,25 @@ docker run -d \
   -v jenkins_home:/var/jenkins_home \
   -v /opt/ci:/opt/ci \
   -e TZ=Asia/Phnom_Penh \
+  -v /var/run/docker.sock:/var/run/docker.sock \
   -v /etc/timezone:/etc/timezone:ro \
   -v /etc/localtime:/etc/localtime:ro \
+  --group-add 112 \
   jenkins/jenkins:lts
-
-
 ```
+
+Jenkins group is adding to root group for access docker permission. 
+# Important command to install docker inside jenkins
+Access to jenkins via bash (can running command apt)
+```
+docker exec -u root -it jenkins bash
+```
+And then run command to install docker 
+```
+apt-get update && apt-get install -y docker.io
+```
+So you can create job with Jenkins script withou Jenkinsfile inside project
+### Read Jenkinsfile.pipeline.script for sample pipeline
 
 Or with docker-compose.yml
 ```
